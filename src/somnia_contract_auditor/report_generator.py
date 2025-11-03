@@ -8,7 +8,8 @@ from typing import Dict, List, Tuple, Any
 def generate_report(
     all_results: Dict[str, Tuple[Dict[str, Any], Dict[str, Any]]],
     sol_files: List[str],
-    output_file: str = None
+    output_file: str = None,
+    ai_summary: str = None
 ) -> Dict[str, Any]:
     """
     Generate Markdown report and return summary.
@@ -29,6 +30,14 @@ def generate_report(
         f.write(f"**Files Scanned**: {len(sol_files)} ({', '.join(sol_files)})\n\n")
         f.write(f"**Mode**: Offline (Slither, Solhint)\n\n")
 
+        # Optional AI summary section at top for quick insights
+        if ai_summary:
+            f.write("## AI Summary & Recommended Fixes\n")
+            f.write(ai_summary)
+            if not ai_summary.endswith("\n"):
+                f.write("\n")
+            f.write("\n")
+
         # Per-file results
         for file_path, (slither_results, solhint_results) in all_results.items():
             f.write(f"## {os.path.basename(file_path)}\n")
@@ -36,8 +45,12 @@ def generate_report(
             # Slither results
             if "error" in slither_results:
                 f.write(f"### Slither Error\n")
-                f.write(f"{slither_results['error']}\n\n")
-            else:
+                f.write(f"```\n{slither_results['error']}\n```\n\n")
+            elif "warning" in slither_results:
+                f.write(f"### Slither Warning\n")
+                f.write(f"⚠️ {slither_results['warning']}\n\n")
+                
+            if "error" not in slither_results:
                 for category in ["vulnerabilities", "inefficiencies", "best_practices"]:
                     issues = slither_results.get(category, [])
                     if issues:

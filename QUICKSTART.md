@@ -47,6 +47,9 @@ somnia-auditor audit -o my-report.md
 
 # Quiet mode
 somnia-auditor audit -q
+
+# Include library folders (lib/, node_modules/)
+somnia-auditor audit --include-libs
 ```
 
 ## Viewing Results

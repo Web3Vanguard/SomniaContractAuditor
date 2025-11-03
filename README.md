@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/logo.svg" alt="Somnia Contract Auditor" width="520" />
+</p>
+
 # Somnia Contract Auditor
 
 A smart contract auditing tool that performs static analysis on Solidity contracts using Slither and Solhint.
@@ -9,6 +13,7 @@ A smart contract auditing tool that performs static analysis on Solidity contrac
 - 📊 **Detailed Reports**: Generates markdown reports with categorized findings
 - 🚀 **CLI Interface**: Easy-to-use command-line interface
 - 📦 **Standalone Binary**: Can be built as a standalone executable
+- 🎯 **Smart Exclusions**: Automatically excludes library folders (lib/, node_modules/) by default
 
 ## Installation
 
@@ -55,6 +60,9 @@ somnia-auditor audit -o my-report.md
 
 # Quiet mode (suppress progress)
 somnia-auditor audit -q
+
+# Include library folders (lib/, node_modules/)
+somnia-auditor audit --include-libs
 ```
 
 ### As a Python Module
@@ -119,6 +127,16 @@ SomniaContractAuditor/
 ├── somnia-auditor.spec         # PyInstaller spec file
 └── README.md                   # This file
 ```
+
+## Default Exclusions
+
+By default, the following folders are excluded from scanning:
+- `lib/` - Foundry dependencies
+- `node_modules/` - Hardhat/NPM dependencies  
+- `.git/` - Version control
+- `cache/`, `out/`, `artifacts/` - Build artifacts
+
+Use the `--include-libs` flag if you want to audit library code as well.
 
 ## Report Format
 

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="200" viewBox="0 0 640 200" role="img" aria-labelledby="title desc">
+  <title id="title">Somnia Contract Auditor</title>
+  <desc id="desc">Shield and eye mark with wordmark Somnia Auditor</desc>
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6a11cb"/>
+      <stop offset="100%" stop-color="#2575fc"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#00d2ff"/>
+      <stop offset="100%" stop-color="#3a7bd5"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- Background (transparent) -->
+  <rect x="0" y="0" width="640" height="200" fill="none"/>
+
+  <!-- Shield logo -->
+  <g transform="translate(40,20)" filter="url(#shadow)">
+    <!-- Shield base -->
+    <path d="M80 0 L160 30 L160 90 C160 130 120 165 80 180 C40 165 0 130 0 90 L0 30 Z"
+          fill="url(#g1)"/>
+    <!-- Inner shield -->
+    <path d="M80 16 L144 40 L144 88 C144 118 112 146 80 158 C48 146 16 118 16 88 L16 40 Z"
+          fill="#0b1020" opacity="0.9"/>
+    <!-- Eye motif -->
+    <ellipse cx="80" cy="86" rx="46" ry="28" fill="url(#g2)" opacity="0.95"/>
+    <ellipse cx="80" cy="86" rx="26" ry="16" fill="#0b1020"/>
+    <circle cx="80" cy="86" r="9" fill="#ffffff"/>
+    <circle cx="83" cy="83" r="3" fill="#b3e5ff"/>
+    <!-- Check mark -->
+    <path d="M55 110 l10 10 l22 -26" fill="none" stroke="#2ee6a6" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+
+  <!-- Wordmark -->
+  <g transform="translate(240,60)">
+    <text x="0" y="0" font-family="Inter, Segoe UI, Roboto, Ubuntu, Helvetica Neue, Arial, sans-serif" font-size="44" font-weight="700" fill="#0b1020">Somnia</text>
+    <text x="0" y="48" font-family="Inter, Segoe UI, Roboto, Ubuntu, Helvetica Neue, Arial, sans-serif" font-size="28" font-weight="600" fill="#2563eb">Contract Auditor</text>
+  </g>
+
+  <!-- Accent underline -->
+  <rect x="240" y="120" width="260" height="6" rx="3" fill="url(#g1)" opacity="0.8"/>
+</svg>
+
+

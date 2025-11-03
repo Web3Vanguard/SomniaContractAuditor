@@ -23,6 +23,7 @@ a = Analysis(
         'somnia_contract_auditor.slither_runner',
         'somnia_contract_auditor.solhint_runner',
         'somnia_contract_auditor.report_generator',
+        'somnia_contract_auditor.ai_assistant',
     ],
     hookspath=[],
     hooksconfig={},

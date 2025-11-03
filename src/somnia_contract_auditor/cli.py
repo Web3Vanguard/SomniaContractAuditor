@@ -9,6 +9,7 @@ from .file_discovery import find_sol_files
 from .slither_runner import run_slither
 from .solhint_runner import run_solhint
 from .report_generator import generate_report
+from .ai_assistant import generate_ai_summary
 
 
 @click.group()
@@ -35,13 +36,38 @@ def cli():
     is_flag=True,
     help='Suppress progress output'
 )
-def audit(path: str, recursive: bool, output: str, quiet: bool):
+@click.option(
+    '--include-libs',
+    is_flag=True,
+    default=False,
+    help='Include library folders (lib/, node_modules/) in scan'
+)
+@click.option(
+    '--ai/--no-ai',
+    default=False,
+    help='Send findings to OpenAI and include AI summary in the report'
+)
+@click.option(
+    '--model',
+    default='gpt-4o-mini',
+    show_default=True,
+    help='OpenAI model to use when --ai is enabled'
+)
+@click.option(
+    '--api-key',
+    default=None,
+    help='OpenAI API key (otherwise uses OPENAI_API_KEY env var)'
+)
+def audit(path: str, recursive: bool, output: str, quiet: bool, include_libs: bool, ai: bool, model: str, api_key: str):
     """
     Run offline audit on path (file/dir/project).
     
     PATH can be a file, directory, or project root.
+    
+    By default, library folders (lib/, node_modules/) are excluded.
+    Use --include-libs to scan these folders.
     """
-    sol_files = find_sol_files(path, recursive)
+    sol_files = find_sol_files(path, recursive, include_libs=include_libs)
     
     if not sol_files:
         click.echo("No .sol files found.", err=True)
@@ -65,7 +91,13 @@ def audit(path: str, recursive: bool, output: str, quiet: bool):
             if not quiet:
                 click.echo(f"    Errors in {os.path.basename(file_path)}")
 
-    summary = generate_report(all_results, sol_files, output_file=output)
+    ai_summary_text = None
+    if ai:
+        if not quiet:
+            click.echo("\nContacting OpenAI for AI summary...")
+        ai_summary_text = generate_ai_summary(all_results, sol_files, model=model, api_key=api_key)
+
+    summary = generate_report(all_results, sol_files, output_file=output, ai_summary=ai_summary_text)
 
     if not quiet:
         click.echo("\nAudit Summary:")
@@ -74,6 +106,8 @@ def audit(path: str, recursive: bool, output: str, quiet: bool):
         click.echo(f"- Inefficiencies: {summary['inefficiencies']}")
         click.echo(f"- Best Practices: {summary['best_practices']}")
         click.echo(f"- Report saved to: {summary['report_file']}")
+        if ai:
+            click.echo("- AI summary included in report")
     
     # Exit with non-zero code if vulnerabilities found
     if summary['vulnerabilities'] > 0:
