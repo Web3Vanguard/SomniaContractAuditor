@@ -1,0 +1,99 @@
+name: Build and Release Binaries
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            runner: ubuntu-latest
+            asset_os: linux
+            python: '3.11'
+          - os: macos-13  # Intel
+            runner: macos-13
+            asset_os: macos
+            python: '3.11'
+          - os: macos-14  # Apple Silicon
+            runner: macos-14
+            asset_os: macos
+            python: '3.11'
+
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install build deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Build binary
+        run: |
+          python build_binary.py
+
+      - name: Determine arch and set asset name
+        id: name
+        shell: bash
+        run: |
+          ARCH=$(uname -m)
+          case "$ARCH" in
+            x86_64|amd64) ARCH=x86_64 ;;
+            arm64|aarch64) ARCH=arm64 ;;
+            armv7l) ARCH=armv7 ;;
+          esac
+          echo "arch=$ARCH" >> $GITHUB_OUTPUT
+          echo "asset_os=${{ matrix.asset_os }}" >> $GITHUB_OUTPUT
+
+      - name: List dist
+        run: ls -lah dist
+
+      - name: Upload artifact (named binary)
+        uses: actions/upload-artifact@v4
+        with:
+          name: somnia-auditor-${{ steps.name.outputs.asset_os }}-${{ steps.name.outputs.arch }}
+          path: |
+            dist/somnia-auditor-${{ steps.name.outputs.asset_os }}-${{ steps.name.outputs.arch }}
+            dist/somnia-auditor
+
+  release:
+    name: Publish Release Assets
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: ./artifacts
+
+      - name: Aggregate assets
+        run: |
+          mkdir -p release
+          find artifacts -type f -name 'somnia-auditor-*' -exec cp {} release/ \;
+          ls -lah release
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/somnia-auditor-linux-*
+            release/somnia-auditor-macos-*
+        env:
+          GITHUB_TOKEN: ${{ secrets.BUILD_TOKEN }}
+
+
