@@ -17,6 +17,17 @@ A smart contract auditing tool that performs static analysis on Solidity contrac
 
 ## Installation
 
+### From Installer
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Web3Vanguard/SomniaContractAuditor/refs/heads/main/scripts/install.sh | bash
+```
+# or
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Web3Vanguard/SomniaContractAuditor/refs/heads/main/scripts/install.sh | sudo bash
+```
+
 ### From Source
 
 ```bash

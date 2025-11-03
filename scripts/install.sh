@@ -4,9 +4,9 @@ set -euo pipefail
 
 # Remote-friendly installer for Somnia Auditor.
 # Intended usage:
-#   curl -fsSL https://your.domain/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/Web3Vanguard/SomniaContractAuditor/refs/heads/main/scripts/install.sh | bash
 # or
-#   curl -fsSL https://your.domain/install.sh | sudo bash
+#   curl -fsSL https://raw.githubusercontent.com/Web3Vanguard/SomniaContractAuditor/refs/heads/main/scripts/install.sh | sudo bash
 
 BIN_NAME="somnia-auditor"
 DEFAULT_INSTALL_DIR="/usr/local/bin"
