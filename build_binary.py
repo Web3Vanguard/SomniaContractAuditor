@@ -3,7 +3,9 @@
 import subprocess
 import sys
 import os
+import shutil
 from pathlib import Path
+import platform
 
 
 def build_binary():
@@ -58,6 +60,31 @@ def build_binary():
             file_size = binary_path.stat().st_size / (1024 * 1024)  # Size in MB
             print(f"✓ Output location: {binary_path}")
             print(f"✓ Binary size: {file_size:.2f} MB")
+
+            # Produce OS/arch named asset for curl|bash installer
+            sysname = platform.system().lower()
+            mach = platform.machine().lower()
+            if mach in ("x86_64", "amd64"): arch = "x86_64"
+            elif mach in ("aarch64", "arm64"): arch = "arm64"
+            elif mach.startswith("armv7"): arch = "armv7"
+            else: arch = mach or "unknown"
+
+            if sysname.startswith("linux"):
+                asset_os = "linux"
+            elif sysname.startswith("darwin"):
+                asset_os = "macos"
+            else:
+                asset_os = sysname
+
+            named_asset = project_root / "dist" / f"somnia-auditor-{asset_os}-{arch}"
+            try:
+                shutil.copyfile(binary_path, named_asset)
+                # Ensure executable bit
+                current_mode = os.stat(named_asset).st_mode
+                os.chmod(named_asset, current_mode | 0o111)
+                print(f"✓ Named asset: {named_asset}")
+            except Exception as e:
+                print(f"⚠ Could not create named asset '{named_asset}': {e}")
         else:
             print(f"⚠ Warning: Expected binary not found at {binary_path}")
             print(f"  Checking dist directory...")
