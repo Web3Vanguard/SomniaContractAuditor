@@ -17,10 +17,6 @@ jobs:
             runner: ubuntu-22.04
             asset_os: linux
             python: '3.11'
-          - os: macos-13  # Intel
-            runner: macos-13
-            asset_os: macos
-            python: '3.11'
           - os: macos-14  # Apple Silicon
             runner: macos-14
             asset_os: macos
