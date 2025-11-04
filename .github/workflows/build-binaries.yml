@@ -87,8 +87,15 @@ jobs:
     name: Publish Release Assets
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/') && github.event_name == 'push'
+    if: |
+      (startsWith(github.ref, 'refs/tags/') && github.event_name == 'push') ||
+      github.event_name == 'workflow_dispatch'
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for tags
+
       - name: Download build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -100,12 +107,45 @@ jobs:
           find artifacts -type f -name 'somnia-auditor-*' -exec cp {} release/ \;
           ls -lah release
 
+      - name: Determine release tag
+        id: tag
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            TAG="${GITHUB_REF#refs/tags/}"
+          else
+            # For manual runs, use latest tag or generate one
+            TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v$(date +%Y%m%d-%H%M%S)")
+          fi
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "Release tag: $TAG"
+
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: Release ${{ steps.tag.outputs.tag }}
+          body: |
+            ## Somnia Contract Auditor ${{ steps.tag.outputs.tag }}
+            
+            ### Installation
+            
+            **Linux/macOS:**
+            ```bash
+            curl -fsSL https://docs.quikdb.com/install/install.sh | sudo bash
+            ```
+            
+            **Or download manually:**
+            - Linux: `somnia-auditor-linux-x86_64`
+            - macOS: `somnia-auditor-macos-*`
+            
+            ### Changes
+            - Built binaries for Linux (Ubuntu 22.04+) and macOS
+            - Compatible with GLIBC 2.35+
           files: |
             release/somnia-auditor-linux-*
             release/somnia-auditor-macos-*
+          draft: false
+          prerelease: ${{ contains(steps.tag.outputs.tag, '-') || contains(steps.tag.outputs.tag, 'alpha') || contains(steps.tag.outputs.tag, 'beta') || contains(steps.tag.outputs.tag, 'rc') }}
         env:
           GITHUB_TOKEN: ${{ secrets.BUILD_TOKEN }}
 
