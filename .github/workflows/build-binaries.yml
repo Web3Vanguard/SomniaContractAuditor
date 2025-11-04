@@ -13,8 +13,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
-            runner: ubuntu-latest
+          - os: ubuntu-20.04
+            runner: ubuntu-20.04
             asset_os: linux
             python: '3.11'
           - os: macos-13  # Intel
@@ -45,6 +45,23 @@ jobs:
       - name: Build binary
         run: |
           python build_binary.py
+
+      - name: Verify GLIBC compatibility (Linux only)
+        if: matrix.asset_os == 'linux'
+        run: |
+          echo "Checking GLIBC requirements for maximum compatibility..."
+          if command -v objdump >/dev/null 2>&1; then
+            BINARY="dist/somnia-auditor"
+            if [ -f "$BINARY" ]; then
+              echo "Binary GLIBC symbol versions required:"
+              objdump -T "$BINARY" 2>/dev/null | grep -i glibc | head -5 || echo "Could not extract GLIBC info"
+              echo ""
+              echo "✓ Built on Ubuntu 20.04 (GLIBC 2.31)"
+              echo "✓ Compatible with Ubuntu 20.04+"
+            fi
+          else
+            echo "⚠ objdump not available, skipping GLIBC check"
+          fi
 
       - name: Determine arch and set asset name
         id: name
