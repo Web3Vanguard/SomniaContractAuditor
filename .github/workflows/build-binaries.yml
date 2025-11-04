@@ -16,7 +16,7 @@ jobs:
           - os: ubuntu-20.04
             runner: ubuntu-latest
             asset_os: linux
-            python: '3.11'
+            python: '3.10'
             use_docker: true
           - os: macos-13  # Intel
             runner: macos-13
@@ -42,13 +42,10 @@ jobs:
             ubuntu:20.04 \
             bash -c "
               apt-get update -qq && \
-              apt-get install -y -qq software-properties-common && \
-              add-apt-repository -y ppa:deadsnakes/ppa && \
-              apt-get update -qq && \
-              apt-get install -y -qq python3.11 python3.11-pip python3.11-venv python3.11-dev build-essential binutils && \
-              python3.11 -m pip install --upgrade pip && \
-              python3.11 -m pip install -r requirements.txt && \
-              python3.11 build_binary.py
+              apt-get install -y -qq python3.10 python3.10-pip python3.10-venv python3.10-dev build-essential binutils && \
+              python3.10 -m pip install --upgrade pip && \
+              python3.10 -m pip install -r requirements.txt && \
+              python3.10 build_binary.py
             "
 
       - name: Set up Python ${{ matrix.python }}
